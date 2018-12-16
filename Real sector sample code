@@ -1,0 +1,332 @@
+'''----------------------------------------------------------------------------------------
+'''Code written by Hanqi Zhang
+'''First version finished in Jan 2018
+'''The following code comes in 3 sections, each includes a function/sub that is 
+'''representative of the user-oriented programming task I carried out at work.
+'''Line lengths are long, due to the long names of Excel built-in properties and methods
+'''----------------------------------------------------------------------------------------
+'''SECTION 1
+'''Part of the code for "Add_New_Entries" button in an Excel user-form
+Private Sub CommandButton2_Click()
+    On Error Resume Next
+    
+    Dim TRow As Long, TRow1 As Long, TRow2 As Long
+    Dim cmt As String
+    Dim i As Integer, j As Integer, k As Integer, w As Integer
+    
+    Form_Add_Entry.Hide
+    
+    '''initializes array of userform elements: 5 tabs, 3 sub-tabs, 7 elements in each sub-tab
+    Dim Form(1 To 5, 1 To 3, 1 To 7) As Variant
+    Call Array_Initialize(Form(), 5, 3, 7)
+    
+        '''tab1 - IN sheet (cross-sector)
+        Form(1, 1, 1) = ComboBox1.Value
+        Form(1, 1, 2) = TextBox1_1.Value
+        Form(1, 1, 3) = TextBox1_2.Value
+        Form(1, 1, 4) = TextBox1_3.Value
+        Form(1, 1, 5) = CheckBox1.Value
+        Form(1, 1, 7) = TextBox1_4.Value
+        
+        '''tab2 - GAS&GEE
+        '''Form(2, 1, 1) = ComboBox2.Value
+        '''Form(2, 1, 2) = TextBox2_1.Value
+        '''Form(2, 1, 3) = TextBox2_2.Value
+        '''Form(2, 1, 4) = TextBox2_3.Value
+        '''Form(2, 1, 5) = CheckBox2.Value
+        '''Form(2, 1, 7) = TextBox2_4.Value
+        
+        '''tab3 - IN_Historical (Supply)
+        Form(3, 1, 1) = ComboBox3_1.Value
+        Form(3, 1, 2) = TextBox3_1_1.Value
+        Form(3, 1, 3) = TextBox3_1_2.Value
+        Form(3, 1, 4) = TextBox3_1_3.Value
+        Form(3, 1, 5) = CheckBox3_1_1.Value
+        Form(3, 1, 6) = CheckBox3_1_2.Value
+        Form(3, 1, 7) = TextBox3_1_4.Value
+        
+        Form(3, 2, 1) = ComboBox3_2.Value
+        Form(3, 2, 2) = TextBox3_2_1.Value
+        Form(3, 2, 3) = TextBox3_2_2.Value
+        Form(3, 2, 4) = TextBox3_2_3.Value
+        Form(3, 2, 5) = CheckBox3_2.Value
+        Form(3, 2, 7) = TextBox3_2_4.Value
+        
+        Form(3, 3, 1) = ComboBox3_3.Value
+        Form(3, 3, 2) = TextBox3_3_1.Value
+        Form(3, 3, 3) = TextBox3_3_2.Value
+        Form(3, 3, 4) = TextBox3_3_3.Value
+        Form(3, 3, 5) = CheckBox3_3.Value
+        Form(3, 3, 7) = TextBox3_3_4.Value
+        
+        '''tab4 - IN_Historical (Income)
+        Form(4, 1, 1) = ComboBox4.Value
+        Form(4, 1, 2) = TextBox4_1.Value
+        Form(4, 1, 3) = TextBox4_2.Value
+        Form(4, 1, 4) = TextBox4_3.Value
+        Form(4, 1, 5) = CheckBox4.Value
+        Form(4, 1, 7) = TextBox4_4.Value
+        
+        '''tab5 - IN_Historical (Demand)
+        Form(5, 1, 1) = ComboBox5_1.Value
+        Form(5, 1, 2) = TextBox5_1_1.Value
+        Form(5, 1, 3) = TextBox5_1_2.Value
+        Form(5, 1, 4) = TextBox5_1_3.Value
+        Form(5, 1, 5) = CheckBox5_1_1.Value
+        Form(5, 1, 6) = CheckBox5_1_2.Value
+        Form(5, 1, 7) = TextBox5_1_4.Value
+        
+        Form(5, 2, 1) = ComboBox5_2.Value
+        Form(5, 2, 2) = TextBox5_2_1.Value
+        Form(5, 2, 3) = TextBox5_2_2.Value
+        Form(5, 2, 4) = TextBox5_2_3.Value
+        Form(5, 2, 5) = CheckBox5_2.Value
+        Form(5, 2, 7) = TextBox5_2_4.Value
+        
+        Form(5, 3, 1) = ComboBox5_3.Value
+        Form(5, 3, 2) = TextBox5_3_1.Value
+        Form(5, 3, 3) = TextBox5_3_2.Value
+        Form(5, 3, 4) = TextBox5_3_3.Value
+        Form(5, 3, 5) = CheckBox5_3.Value
+        Form(5, 3, 7) = TextBox5_3_4.Value
+    
+    '''searches for the target columns in each worksheet
+    Dim Ws_Count As Integer
+    Ws_Count = ThisWorkbook.Worksheets.Count
+    Dim Col_desc() As Range, Col_code() As Range, Col_scal() As Range
+    ReDim Col_desc(1 To Ws_Count), Col_code(1 To Ws_Count), Col_scal(1 To Ws_Count)
+    For k = 1 To Ws_Count
+        Set Col_desc(k) = ThisWorkbook.Worksheets(k).Rows(1).Find("descriptor_", MatchCase:=False, lookat:=xlWhole, LookIn:=xlValues)
+        Set Col_code(k) = ThisWorkbook.Worksheets(k).Rows(1).Find("series_code", MatchCase:=False, lookat:=xlWhole, LookIn:=xlValues)
+        Set Col_scal(k) = ThisWorkbook.Worksheets(k).Rows(1).Find("retrieve_scale", MatchCase:=False, lookat:=xlWhole, LookIn:=xlValues)
+        If Col_desc(k) Is Nothing Then Set Col_desc(k) = ThisWorkbook.Worksheets(k).Rows(1).Find("descriptor", MatchCase:=False, lookat:=xlWhole, LookIn:=xlValues)
+        If Col_scal(k) Is Nothing Then Set Col_scal(k) = ThisWorkbook.Worksheets(k).Rows(1).Find("scale", MatchCase:=False, lookat:=xlWhole, LookIn:=xlValues)
+        If Col_code(k) Is Nothing Then Set Col_code(k) = ThisWorkbook.Worksheets(k).Rows(1).Find("save_series_code", MatchCase:=False, lookat:=xlWhole, LookIn:=xlValues)
+    Next k
+    
+    '''loops through each tab of the userform and adds new entries
+    For i = 1 To 5
+        For j = 1 To 3
+            If Not (Form(i, j, 1) = "" Or Form(i, j, 2) = "") Then
+                For w = 1 To Ws_Count '<-- iterates through sheets
+                    If Not (Col_desc(w) Is Nothing Or Col_code(w) Is Nothing) Then
+                        If Not ThisWorkbook.Worksheets(w).Columns(Col_code(w).Column).Find(Form(i, j, 1), MatchCase:=False, lookat:=xlWhole, LookIn:=xlValues) Is Nothing Then
+
+                            TRow = ThisWorkbook.Worksheets(w).Columns(Col_code(w).Column).Find(Form(i, j, 1), MatchCase:=False, lookat:=xlWhole, LookIn:=xlValues).Row + 1
+                            
+                            '''inserts new row
+                            ThisWorkbook.Worksheets(w).Rows(TRow).EntireRow.Insert
+                            
+                            '''fills in the required fields in the sheet
+                            ThisWorkbook.Worksheets(w).Cells(TRow, Col_desc(w).Column) = Form(i, j, 4)
+                            ThisWorkbook.Worksheets(w).Cells(TRow, Col_code(w).Column) = Form(i, j, 2)
+                            If Not Col_scal(w) Is Nothing Then ThisWorkbook.Worksheets(w).Cells(TRow, Col_scal(w).Column) = Form(i, j, 3)
+                            
+                            '''inserts comment
+                            cmt = Environ$("UserName") & ": " & Form(i, j, 7)
+                            ThisWorkbook.Worksheets(w).Cells(TRow, Col_code(w).Column).AddComment cmt
+                            
+                            '''if in- or outsheet then fills in database path
+                            If (Form(i, j, 5) = True And Col_code(w).Column > 1) Then
+                                ThisWorkbook.Worksheets(w).Cells(TRow, 1).Formula = "=DB"
+                                If ThisWorkbook.Worksheets(w).Name = "OUT" Then ThisWorkbook.Worksheets(w).Cells(TRow, 1).Formula = "=DB_forecast"
+                            End If
+                            
+                            '''changes font and color
+                            Call Format_Entry(w, TRow, vbRed)
+                            
+                            '''if calculation sheet then do same thing for sections of growth rate, percent of gdp, and/or contribution to gdp growth
+                            If Col_code(w).Column = 1 And _
+                            Not ThisWorkbook.Worksheets(w).Columns(Col_code(w).Column).Find(Form(i, j, 1) & "_GDP", LookIn:=xlValues, lookat:=xlWhole) _
+                            Is Nothing Then
+                                TRow1 = ThisWorkbook.Worksheets(w).Columns(Col_code(w).Column).Find(Form(i, j, 1) & "_PCH", LookIn:=xlValues, lookat:=xlWhole).Row + 1
+                                ThisWorkbook.Worksheets(w).Rows(TRow1).EntireRow.Insert
+                                TRow2 = ThisWorkbook.Worksheets(w).Columns(Col_code(w).Column).Find(Form(i, j, 1) & "_GDP", LookIn:=xlValues, lookat:=xlWhole).Row + 1
+                                ThisWorkbook.Worksheets(w).Rows(TRow2).EntireRow.Insert
+                                ThisWorkbook.Worksheets(w).Cells(TRow1, Col_desc(w).Column) = Form(i, j, 4)
+                                ThisWorkbook.Worksheets(w).Cells(TRow1, Col_code(w).Column) = Form(i, j, 2) & "_PCH"
+                                ThisWorkbook.Worksheets(w).Cells(TRow2, Col_desc(w).Column) = Form(i, j, 4)
+                                ThisWorkbook.Worksheets(w).Cells(TRow2, Col_code(w).Column) = Form(i, j, 2) & "_GDP"
+                                Call Format_Entry(w, TRow1, vbRed)
+                                Call Format_Entry(w, TRow2, vbRed)
+                            End If
+                        End If
+                    End If
+                Next w
+            End If
+        Next j
+    Next i
+End Sub
+
+
+-------------------------------------------------------------------------------------------------------------------
+'''SECTION 2
+'''Part of the configuration module
+Function Config_Start()
+    Application.DisplayAlerts = False
+    Application.ScreenUpdating = False
+    Dim Text As String, PctCompl As Single ''' for progress bar
+    Dim Name As String '''country name
+    Dim Num As String '''country numeric code
+    Dim Code As String '''country letter code
+    Dim SheetsCount As Integer '''number of sheets
+    Dim CoreArray As Variant '''core variable returned by create basic sheets function
+    Dim Range As String '''the forecast range dropdown cell
+    Dim Rng As Integer '''the user-selected value in the dropdown cell
+    Dim Hist As Integer '''the user-selected value to be the first historical year
+    Dim Fcast As Integer '''the user-selected value to be the first forecast year
+    Dim DiffRng As Integer, DiffHist As Integer, DiffFcast As Integer '''difference between default values and user-selected values
+    Dim i As Integer, j As Integer, k As Integer '''counters
+    Dim it As Object '''vbcomponent objects
+    Dim sheet As Variant
+    
+    Call Initialize
+    CoreArray = create_basic_sheets() '''create basicsheet objects to record names, lastcolumns, etc.
+    SheetsCount = CoreArray(4)
+    
+    '''config for countryname
+    Text = "Configuring Country name and code..."
+    PctCompl = 5
+    Call Progress(PctCompl, Text)
+    
+    Name = "Country name"
+    Num = "000"
+    Code = "XXX"
+    Name = Sheets(1).Range("G3").Value
+    Num = Sheets(1).Range("S3").Value
+    Code = Sheets(1).Range("T3").Value
+    Sheets(Content.Name).Unprotect
+    Sheets(Content.Name).Range("C8") = Name
+    Sheets(Content.Name).Range("C9") = Num
+    Sheets(Content.Name).Range("C10") = Code
+    Sheets(Content.Name).Protect
+    
+    '''config for GFSM and level of government
+    Text = "Configuring GFSM version and levels of government..."
+    PctCompl = 10
+    Call Progress(PctCompl, Text)
+        
+    Call Config_Formula
+    '''adjust year range
+    Text = "Configuring year ranges..."
+    PctCompl = 40
+    Call Progress(PctCompl, Text)
+        
+    Range = Sheets(1).Range("N11")
+    Hist = Sheets(1).Range("G11")
+    Fcast = Sheets(1).Range("K11")
+    
+    Rng = Left(Range, Len(Range) - 6) * 1
+    DiffRng = Rng - (ThisWorkbook.Names("ForecastRange").RefersToRange - ThisWorkbook.Names("Forecast").RefersToRange + 1)
+    DiffFcast = Fcast - ThisWorkbook.Names("Forecast").RefersToRange
+    DiffHist = Hist - ThisWorkbook.Names("Historical").RefersToRange - DiffFcast
+        
+    Sheets(Content.Name).Unprotect
+    
+    ThisWorkbook.Names("Historical").RefersToRange = ThisWorkbook.Names("Historical").RefersToRange + DiffFcast
+    ThisWorkbook.Names("Forecast").RefersToRange = ThisWorkbook.Names("Forecast").RefersToRange + DiffFcast
+    ThisWorkbook.Names("ForecastRange").RefersToRange = ThisWorkbook.Names("ForecastRange").RefersToRange + DiffRng + DiffFcast
+            
+    Text = "Configuring year ranges: customizing historical years..."
+    PctCompl = 50
+    Call Progress(PctCompl, Text)
+    
+    CoreArray = create_basic_sheets() '''create basicsheet objects to record names, lastcolumns, etc.
+    SheetsCount = CoreArray(4)
+    
+    If DiffHist <> 0 Then
+    ''' case: need to add/delete historical years
+        For i = SheetsCount To 1 Step -1
+            PctCompl = 50 + 50 * (SheetsCount - i + 1) / SheetsCount
+            Call Progress(PctCompl, Text)
+            On Error Resume Next
+            If ShtArray(i).IsAssumptionSheet = False Then
+                If DiffHist > 0 Then
+                    Call DeleteCols(ShtArray(i), ShtArray(i).FirstYearCol + 1, ShtArray(i).FirstYearCol + DiffHist)
+                Else
+                    Call InsertCols(ShtArray(i), ShtArray(i).FirstYearCol + 1, ShtArray(i).FirstYearCol - DiffHist)
+                End If
+            Else
+                Sheets(ShtArray(i).Name).Columns(ShtArray(i).FirstYearCol + 4).Copy Sheets(ShtArray(i).Name).Range(Sheets(ShtArray(i).Name).Columns(ShtArray(i).FirstYearCol), Sheets(ShtArray(i).Name).Columns(ShtArray(i).FirstYearCol + 3))
+            End If
+            On Error GoTo 0
+        Next i
+        ThisWorkbook.Names("Historical").RefersToRange = Hist
+    End If
+
+    If DiffRng > 0 Then
+    '''case: need to add forecast years
+        '''because 5 years of forecast are available by default, so we add on 5 more years initially, then 10 more, then 20 more, until 5+10+20+... approaches DiffRng
+        Text = "Finalizing..."
+        PctCompl = 100
+        Call Progress(PctCompl, Text)
+        Call Extend_Forecast(DiffRng)
+    End If
+    
+    Sheets(Content.Name).Protect
+    PreConfig_Progress.Hide
+    
+    '''hardcoding the year numbers
+    On Error Resume Next
+    For Each sheet In ShtArray()
+        Sheets(sheet.Name).Rows(1).EntireRow.Copy
+        Sheets(sheet.Name).Rows(1).PasteSpecial (xlValues)
+    Next sheet
+    On Error GoTo 0
+    
+    On Error Resume Next
+    For Each it In ThisWorkbook.VBProject.VBComponents
+        If it.Name = "Configuration" Then ThisWorkbook.VBProject.VBComponents.Remove it
+        If it.Name = "PreConfig_Progress" Then ThisWorkbook.VBProject.VBComponents.Remove it
+    Next it
+    On Error GoTo 0
+    
+    Sheets(1).Delete
+    Application.DisplayAlerts = True
+    MsgBox "Configuration successful."
+    Application.ScreenUpdating = True
+End Function
+
+'''-----------------------------------------------------------------------------------------------------------
+'''SECTION 3
+'''Simple user-defined class "SheetBasic"
+Public Name As String
+Public FirstYearCol As Integer
+Public LastCol As Integer
+Public FirstDataRow As Integer
+Public IsInSheet As Boolean
+Public IsOutSheet As Boolean
+Public IsCalcSheet As Boolean
+Public IsContentSheet As Boolean
+Public IsAssumptionSheet As Boolean
+Public HasNoForecast As Boolean
+
+'''returns the column number of the last year in the sheet
+Public Function GetLastCol() As Integer
+    GetLastCol = ThisWorkbook.Worksheets(Name).Cells(1, Columns.Count).End(xlToLeft).Column
+End Function
+
+Public Property Let SetName(tempName As String)
+    Name = tempName
+End Property
+
+Public Sub InitializeProperties(name_ As String, first_year_col As Integer, first_data_row As Integer, last_col As Integer, in_or_out As String, Optional no_fcast As Boolean)
+    Name = name_
+    FirstYearCol = first_year_col
+    FirstDataRow = first_data_row
+    LastCol = last_col
+
+    Select Case in_or_out
+        Case "IN"
+            IsInSheet = True
+        Case "OUT"
+            IsOutSheet = True
+        Case "Assumptions"
+            IsAssumptionSheet = True
+        Case "Content"
+            IsContentSheet = True
+        Case "Calculation"
+            IsCalcSheet = True
+    End Select
+    HasNoForecast = no_fcast
+End Sub
